@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spark of Brilliance · A Farewell Tribute</title>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  HOW TO USE (read just this)                                   ║
+     ║  1. Edit names / text: scroll to "★ EDIT ZONE" near the       ║
+     ║     bottom. Everything lives there.                            ║
+     ║  2. Music: name your audio file  music.mp3  and put it in the  ║
+     ║     same folder. (Can't bundle the song itself — copyright.)   ║
+     ║  3. Photos: drop image files in the same folder, list their    ║
+     ║     filenames in the PHOTOS array.                             ║
+     ║  4. Shared guestbook: see BACKEND_URL comment + the included   ║
+     ║     Google Apps Script (apps-script-backend.gs).               ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400..700&family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --coral:#FF6B4A; --orange:#FF8E53; --amber:#FFB347; --rose:#FF5E7E;
+  --gold:#E89B3C; --ember:#E8472B;
+  --cream:#FFF7EE; --cream-2:#FFEEDD; --paper:#FFFCF8;
+  --ink:#3A2317; --ink-soft:#7A5C49; --shadow:rgba(180,70,30,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:"Figtree",system-ui,sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden;line-height:1.75}
+::selection{background:var(--ember);color:#fff}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.audio-btn{position:fixed;top:22px;right:22px;z-index:1000;width:54px;height:54px;border-radius:50%;
+  border:none;cursor:pointer;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
+  box-shadow:0 6px 24px var(--shadow);display:flex;align-items:center;justify-content:center;
+  transition:transform .3s,box-shadow .3s}
+.audio-btn:hover{transform:scale(1.08)}
+.audio-btn svg{width:22px;height:22px;fill:var(--ember)}
+.audio-btn .bars{display:none;gap:3px;align-items:flex-end;height:20px}
+.audio-btn.playing .bars{display:flex}
+.audio-btn.playing .play-icon{display:none}
+.audio-btn .bars span{width:3px;background:var(--ember);border-radius:2px;animation:eq .9s ease-in-out infinite}
+.audio-btn .bars span:nth-child(2){animation-delay:.2s}
+.audio-btn .bars span:nth-child(3){animation-delay:.4s}
+.audio-btn .bars span:nth-child(4){animation-delay:.1s}
+@keyframes eq{0%,100%{height:5px}50%{height:20px}}
+.audio-note{position:fixed;top:84px;right:22px;z-index:1000;font-size:11px;color:var(--ink-soft);
+  background:rgba(255,255,255,.85);padding:5px 10px;border-radius:8px;max-width:170px;text-align:right;
+  box-shadow:0 4px 14px rgba(180,70,30,.1);opacity:0;transform:translateY(-6px);
+  transition:opacity .4s,transform .4s;pointer-events:none}
+.audio-note.show{opacity:1;transform:translateY(0)}
+
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:80px 24px;overflow:hidden;
+  background:radial-gradient(120% 90% at 20% 10%,rgba(255,94,126,.55),transparent 55%),
+    radial-gradient(110% 90% at 85% 20%,rgba(255,179,71,.6),transparent 55%),
+    radial-gradient(130% 110% at 50% 110%,rgba(232,71,43,.5),transparent 60%),
+    linear-gradient(160deg,#FF7A4D 0%,#FF8E53 35%,#FFA94D 70%,#FF6B4A 100%)}
+.hero::before{content:"";position:absolute;top:-15%;left:50%;transform:translateX(-50%);
+  width:min(80vw,700px);height:min(80vw,700px);border-radius:50%;
+  background:radial-gradient(circle,rgba(255,240,200,.9),rgba(255,200,120,.3) 45%,transparent 70%);filter:blur(6px)}
+.sparks{position:absolute;inset:0;pointer-events:none}
+.spark{position:absolute;border-radius:50%;background:rgba(255,250,235,.95);
+  box-shadow:0 0 8px rgba(255,235,180,.9);animation:float linear infinite}
+@keyframes float{0%{transform:translateY(110vh) scale(.6);opacity:0}10%{opacity:1}90%{opacity:.9}
+  100%{transform:translateY(-10vh) scale(1.1);opacity:0}}
+.hero-inner{position:relative;z-index:2;max-width:880px;color:#fff;text-shadow:0 2px 20px rgba(150,40,10,.25)}
+.eyebrow{font-family:"Fraunces",serif;font-style:italic;font-size:clamp(15px,2.2vw,20px);
+  letter-spacing:.18em;text-transform:uppercase;opacity:.95;margin-bottom:22px;
+  display:inline-flex;align-items:center;gap:14px}
+.eyebrow::before,.eyebrow::after{content:"";width:38px;height:1px;background:rgba(255,255,255,.7)}
+.hero h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(34px,6.2vw,70px);
+  line-height:1.18;letter-spacing:-.01em;margin-bottom:8px}
+.hero h1 .accent{font-style:italic;font-weight:500;display:inline-block;
+  background:linear-gradient(90deg,#FFF3D6,#FFE0A3);-webkit-background-clip:text;background-clip:text;
+  color:transparent;text-shadow:none}
+.hero .lede{font-size:clamp(15px,2vw,19px);line-height:1.9;max-width:660px;margin:32px auto 0;font-weight:300;opacity:.96}
+.scroll-cue{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:2;color:#fff;
+  opacity:.85;animation:bob 2s ease-in-out infinite;font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+.scroll-cue svg{display:block;margin:8px auto 0;width:20px;height:20px;fill:#fff}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+
+section.block{padding:clamp(70px,10vw,130px) 24px;position:relative}
+.wrap{max-width:1080px;margin:0 auto}
+.sec-tag{font-family:"Fraunces",serif;font-style:italic;font-size:14px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ember);margin-bottom:14px;display:flex;align-items:center;gap:12px;font-weight:600}
+.sec-tag .num{font-size:13px;width:30px;height:30px;border:1.5px solid var(--ember);border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;font-style:normal;flex:none}
+.sec-title{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(26px,4.4vw,46px);
+  line-height:1.25;margin-bottom:22px;color:var(--ink);letter-spacing:-.01em}
+.sec-title em{font-style:italic;color:var(--ember);font-weight:500}
+.commentary{font-size:clamp(15px,1.7vw,18px);max-width:680px;color:var(--ink-soft);
+  border-left:3px solid var(--amber);padding-left:20px;margin-bottom:48px;line-height:1.85}
+
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+#leader{background:var(--paper)}
+.cloud{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;justify-content:center;
+  padding:40px 20px;margin-bottom:54px;background:radial-gradient(ellipse at center,var(--cream-2),var(--paper) 75%);
+  border-radius:28px;border:1px solid rgba(232,155,60,.25)}
+.cloud span{font-family:"Fraunces",serif;font-weight:600;line-height:1;cursor:default;
+  transition:transform .3s,color .3s;white-space:nowrap}
+.cloud span:hover{transform:scale(1.12) rotate(-2deg);color:var(--ember)!important}
+.quote-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.qcard{background:#fff;border-radius:20px;padding:30px 28px;position:relative;
+  box-shadow:0 12px 36px rgba(180,70,30,.08);border:1px solid rgba(232,155,60,.18);
+  transition:transform .35s,box-shadow .35s;overflow:hidden}
+.qcard:hover{transform:translateY(-6px);box-shadow:0 20px 48px rgba(180,70,30,.16)}
+.qcard::before{content:"\201C";position:absolute;top:-18px;right:18px;font-family:"Fraunces",serif;
+  font-size:120px;color:rgba(232,71,43,.08);line-height:1}
+.qcard .pill{display:inline-block;font-size:12px;letter-spacing:.04em;font-weight:700;color:#fff;
+  background:linear-gradient(120deg,var(--ember),var(--orange));padding:5px 14px;border-radius:30px;margin-bottom:16px}
+.qcard p{font-size:16px;line-height:1.8;color:var(--ink);position:relative;z-index:1}
+.qcard .by{margin-top:18px;font-size:14px;color:var(--ink-soft);font-style:italic;font-family:"Fraunces",serif}
+.qcard .by::before{content:"— "}
+
+#joy{background:linear-gradient(180deg,var(--cream) 0%,var(--cream-2) 100%)}
+.joy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+.joy-card{border-radius:24px;padding:34px 30px;color:#fff;position:relative;overflow:hidden;min-height:210px;
+  display:flex;flex-direction:column;justify-content:flex-end;box-shadow:0 16px 40px rgba(180,70,30,.18);transition:transform .4s}
+.joy-card:hover{transform:translateY(-8px) rotate(-1deg)}
+.joy-card:nth-child(3n+1){background:linear-gradient(140deg,#FF7A4D,#FF5E7E)}
+.joy-card:nth-child(3n+2){background:linear-gradient(140deg,#FFA94D,#FF6B4A)}
+.joy-card:nth-child(3n+3){background:linear-gradient(140deg,#FF8E53,#E8472B)}
+.joy-card .emoji{font-size:42px;position:absolute;top:22px;left:26px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
+.joy-card h3{font-family:"Fraunces",Georgia,serif;font-size:24px;font-weight:600;margin-bottom:8px}
+.joy-card p{font-size:15px;line-height:1.65;font-weight:300;opacity:.96}
+
+#future{background:linear-gradient(180deg,#2B1810 0%,#3A2317 50%,#4A2A1A 100%);color:#fff;position:relative;overflow:hidden}
+#future .sec-title{color:#fff}
+#future .sec-tag{color:var(--amber)}
+#future .sec-tag .num{border-color:var(--amber)}
+#future .commentary{color:rgba(255,240,225,.75);border-color:var(--gold)}
+.lighthouse-stage{position:relative;display:flex;justify-content:center;margin:30px 0 60px;height:220px}
+.beam{position:absolute;top:30px;left:50%;width:0;height:0;border-left:170px solid transparent;
+  border-right:170px solid transparent;border-bottom:340px solid rgba(255,200,120,.14);
+  transform-origin:top center;transform:translateX(-50%);animation:sweep 6s ease-in-out infinite;filter:blur(4px)}
+@keyframes sweep{0%,100%{transform:translateX(-50%) rotate(-22deg)}50%{transform:translateX(-50%) rotate(22deg)}}
+.lighthouse{position:relative;z-index:2;width:64px;display:flex;flex-direction:column;align-items:center}
+.lh-light{width:26px;height:22px;background:radial-gradient(circle,#FFF3D6,var(--amber));border-radius:50% 50% 4px 4px;
+  box-shadow:0 0 30px 8px rgba(255,210,130,.7);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 30px 8px rgba(255,210,130,.6)}50%{box-shadow:0 0 46px 14px rgba(255,210,130,.9)}}
+.lh-top{width:34px;height:10px;background:#5a3522;border-radius:4px 4px 0 0;margin-top:-2px}
+.lh-body{width:0;height:0;border-left:24px solid transparent;border-right:24px solid transparent;
+  border-top:150px solid #E8472B;position:relative}
+.lh-body::before{content:"";position:absolute;top:0;left:-24px;width:48px;height:150px;
+  background:repeating-linear-gradient(180deg,transparent 0 24px,rgba(255,255,255,.85) 24px 38px);
+  clip-path:polygon(0 0,100% 0,76% 100%,24% 100%)}
+.lh-base{width:64px;height:14px;background:#3a2317;border-radius:0 0 6px 6px}
+.wish-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;position:relative;z-index:2}
+.wish{background:rgba(255,255,255,.06);border:1px solid rgba(255,200,120,.25);border-radius:18px;padding:26px 24px;
+  backdrop-filter:blur(4px);transition:transform .35s,background .35s}
+.wish:hover{transform:translateY(-5px);background:rgba(255,255,255,.1)}
+.wish .star{color:var(--amber);font-size:20px;margin-bottom:10px}
+.wish p{font-size:15px;line-height:1.7;color:rgba(255,245,235,.92)}
+.wish .by{margin-top:14px;font-size:13px;color:var(--amber);font-style:italic;font-family:"Fraunces",serif}
+.wish .by::before{content:"— "}
+
+#gallery{background:var(--paper)}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.photo{border-radius:18px;overflow:hidden;aspect-ratio:4/3;position:relative;
+  box-shadow:0 10px 30px rgba(180,70,30,.1);background:var(--cream-2)}
+.photo img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.photo:hover img{transform:scale(1.07)}
+.photo .ph-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--ink-soft);border:2px dashed rgba(232,155,60,.5);border-radius:18px;text-align:center;padding:14px;font-size:13px}
+.photo .ph-empty svg{width:34px;height:34px;fill:var(--gold);margin-bottom:8px;opacity:.6}
+
+#guestbook{background:linear-gradient(180deg,var(--cream-2),var(--cream))}
+.gb-form{background:#fff;border-radius:22px;padding:30px;max-width:620px;
+  box-shadow:0 14px 40px rgba(180,70,30,.1);border:1px solid rgba(232,155,60,.2);margin-bottom:40px}
+.gb-form input,.gb-form textarea{width:100%;font-family:inherit;font-size:15px;color:var(--ink);
+  border:1.5px solid rgba(232,155,60,.3);border-radius:12px;padding:13px 16px;margin-bottom:14px;
+  background:var(--cream);transition:border .3s}
+.gb-form input:focus,.gb-form textarea:focus{outline:none;border-color:var(--ember)}
+.gb-form textarea{resize:vertical;min-height:96px}
+.gb-form button{font-family:inherit;font-size:15px;font-weight:700;color:#fff;cursor:pointer;border:none;
+  background:linear-gradient(120deg,var(--ember),var(--orange));padding:13px 32px;border-radius:30px;
+  transition:transform .25s,box-shadow .25s;box-shadow:0 8px 22px rgba(232,71,43,.3)}
+.gb-form button:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(232,71,43,.4)}
+.gb-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.gb-msg{background:var(--paper);border-radius:16px;padding:22px 24px;position:relative;
+  box-shadow:0 8px 24px rgba(180,70,30,.07);border:1px solid rgba(232,155,60,.15);animation:pop .5s ease}
+@keyframes pop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+.gb-msg .who{font-family:"Fraunces",serif;font-weight:600;color:var(--ember);margin-bottom:8px;font-size:17px}
+.gb-msg .txt{font-size:14.5px;line-height:1.7;color:var(--ink);white-space:pre-wrap}
+.gb-msg .when{margin-top:10px;font-size:12px;color:var(--ink-soft);font-family:"Fraunces",serif;font-style:italic}
+.gb-empty{color:var(--ink-soft);font-style:italic;grid-column:1/-1;text-align:center;padding:30px}
+
+#letter{background:radial-gradient(120% 80% at 50% 0%,rgba(255,179,71,.25),transparent 60%),
+  linear-gradient(170deg,#FF8E53,#FF6B4A 60%,#E8472B);color:#fff;text-align:center}
+.letter-inner{max-width:720px;margin:0 auto}
+#letter .sec-tag{color:#fff;justify-content:center}
+#letter .sec-tag .num{border-color:#fff}
+.letter-body{font-family:"Fraunces",Georgia,serif;font-size:clamp(18px,2.4vw,25px);line-height:1.85;font-weight:400;
+  text-shadow:0 2px 16px rgba(150,40,10,.2)}
+.letter-body .big{font-style:italic;font-weight:500}
+.sign{margin-top:40px;font-family:"Fraunces",serif;font-style:italic;font-size:20px;opacity:.95}
+.sign .name{display:block;font-style:normal;font-weight:600;font-size:26px;margin-top:6px}
+
+footer{background:#2B1810;color:rgba(255,240,225,.5);text-align:center;padding:36px 24px;font-size:13px;
+  font-family:"Fraunces",serif;font-style:italic}
+
+@media(max-width:600px){.commentary{margin-bottom:34px}.cloud{padding:28px 14px}.audio-note{display:none}}
+</style>
+</head>
+<body>
+
+<audio id="bgm" loop preload="none"><source src="music.mp3" type="audio/mpeg"></audio>
+<button class="audio-btn" id="audioBtn" aria-label="Play / pause music">
+  <svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  <span class="bars"><span></span><span></span><span></span><span></span></span>
+</button>
+<div class="audio-note" id="audioNote">&#9834; Add music.mp3 to play<br>"Have You Ever Seen the Rain"</div>
+
+<header class="hero">
+  <div class="sparks" id="sparks"></div>
+  <div class="hero-inner">
+    <div class="eyebrow">A Retrospective</div>
+    <h1>More than the work you delivered,<br>you leave behind <span class="accent">the spark that lit us up</span></h1>
+    <p class="lede">
+      On any career journey, some people are a force simply by being there.
+      You weren't just the analyst who solved the problem &mdash; you were the one who brought
+      the laughter, fought beside us in the escape room, and led with a brilliance
+      that made everyone better. This space is for the moments that made you irreplaceable.
+    </p>
+  </div>
+  <div class="scroll-cue">Scroll
+    <svg viewBox="0 0 24 24"><path d="M12 16l-6-6h12z"/></svg>
+  </div>
+</header>
+
+<section class="block" id="leader">
+  <div class="wrap">
+    <div class="sec-tag reveal"><span class="num">A</span>The "Leader" Spirit</div>
+    <h2 class="sec-title reveal">This is who you were to us &mdash; <em>the driving force</em></h2>
+    <p class="commentary reveal">Steady, yes &mdash; but more than that, you could always find the clear path through the chaos. You gave the word "professional" a warmth, and reminded us that a team's real engine was never the process. It was the person willing to carry the weight, and lift everyone with her.</p>
+    <div class="cloud reveal" id="cloud"></div>
+    <div class="quote-grid" id="leaderQuotes"></div>
+  </div>
+</section>
+
+<section class="block" id="joy">
+  <div class="wrap">
+    <div class="sec-tag reveal"><span class="num">B</span>The "Joy" Multiplier</div>
+    <h2 class="sec-title reveal">Our <em>golden memories</em></h2>
+    <p class="commentary reveal">Because you were there, the ordinary days shone. The jokes over lunch, the screams down the ski slope, that triumphant "I found a clue!" &mdash; none of it will ever show up in a performance report, and it's exactly what we'll miss the most.</p>
+    <div class="joy-grid" id="joyGrid"></div>
+  </div>
+</section>
+
+<section class="block" id="future">
+  <div class="wrap">
+    <div class="sec-tag reveal"><span class="num">C</span>The Future Vision</div>
+    <h2 class="sec-title reveal">May this light <em>guide you to wider horizons</em></h2>
+    <p class="commentary reveal">Everyone's wishes are shining for you, like a lighthouse. Whatever waters you sail next, know there's a crew here, always cheering for your next voyage.</p>
+    <div class="lighthouse-stage reveal">
+      <div class="beam"></div>
+      <div class="lighthouse"><div class="lh-light"></div><div class="lh-top"></div><div class="lh-body"></div><div class="lh-base"></div></div>
+    </div>
+    <div class="wish-grid" id="wishGrid"></div>
+  </div>
+</section>
+
+<section class="block" id="gallery">
+  <div class="wrap">
+    <div class="sec-tag reveal"><span class="num">&#10022;</span>Moments</div>
+    <h2 class="sec-title reveal">The frames <em>the light touched</em></h2>
+    <p class="commentary reveal">Drop your photo files into the same folder and list their filenames in the PHOTOS array in the code below.</p>
+    <div class="photo-grid reveal" id="photoGrid"></div>
+  </div>
+</section>
+
+<section class="block" id="guestbook">
+  <div class="wrap">
+    <div class="sec-tag reveal"><span class="num">&#9825;</span>Leave a Note</div>
+    <h2 class="sec-title reveal">Say it <em>here</em></h2>
+    <p class="commentary reveal">A sentence, a memory, a wish &mdash; anything at all. It becomes part of this wall, and goes with her into whatever comes next.</p>
+    <div class="gb-form reveal">
+      <input id="gbName" type="text" placeholder="Your name" maxlength="40">
+      <textarea id="gbText" placeholder="Write something for her..." maxlength="600"></textarea>
+      <button id="gbSubmit">Leave your note &rarr;</button>
+    </div>
+    <div class="gb-list" id="gbList"></div>
+  </div>
+</section>
+
+<section class="block" id="letter">
+  <div class="letter-inner">
+    <div class="sec-tag reveal"><span class="num">&#8734;</span>A Personal Note</div>
+    <p class="letter-body reveal">
+      In a workplace obsessed with efficiency, you proved with everything you did that
+      <span class="big">passion and excellence can live in the same person.</span><br><br>
+      You taught me that the best colleague isn't the one who's always right &mdash;
+      it's the one who makes you look forward to showing up.<br><br>
+      Wherever you go next, remember these words &mdash;
+      they are the mark you left on us, the one no one else could leave.
+    </p>
+    <div class="sign reveal">Always rooting for you,<span class="name" id="signName">&mdash; Your colleagues</span></div>
+  </div>
+</section>
+
+<footer>Made with warmth &nbsp;·&nbsp; Spark of Brilliance &nbsp;·&nbsp; <span id="year"></span></footer>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   ★ EDIT ZONE — change everything here, then save
+   ════════════════════════════════════════════════════════════ */
+
+// 1) Names
+const HONOREE = "";                 // e.g. "Sarah"  (used in the browser tab title)
+const SIGNED_BY = "Your colleagues"; // your name or the team name
+
+// 2) Word cloud — her best qualities (add as many as you like; s = size weight)
+const QUALITIES = [
+  {t:"Visionary Leadership", s:2.4}, {t:"Clarity", s:1.5}, {t:"Dependable", s:1.9},
+  {t:"Organized", s:2.1}, {t:"Calm", s:1.4}, {t:"Owns It", s:1.7},
+  {t:"Inspiring", s:2.0}, {t:"Sharp", s:1.6}, {t:"Efficient", s:1.3},
+  {t:"Warm", s:1.8}, {t:"Funny", s:1.5}, {t:"Decisive", s:1.4},
+  {t:"Empathetic", s:1.7}, {t:"Thoughtful", s:1.3}, {t:"The Anchor", s:2.2},
+];
+
+// 3) Section A — leadership / professionalism quotes (pill = tag, p = quote, by = who)
+const LEADER_QUOTES = [
+  {pill:"The Driving Force", p:"When things fell apart, she was always the first to say 'I've got this' \u2014 and then she made sure everyone else was okay too.", by:"A teammate"},
+  {pill:"Clear Direction", p:"Hand her a tangled problem and it came back as a few clean steps. With her, you always knew what came next.", by:"A project partner"},
+  {pill:"Total Trust", p:"Give her anything and I never had to check it twice. That's the highest compliment I can pay anyone.", by:"Her manager"},
+];
+
+// 4) Section B — joy memories (emoji, h = title, p = memory)
+const JOY_MEMORIES = [
+  {emoji:"\uD83C\uDF5C", h:"Lunch Breaks", p:"Those midday hours of bad jokes and unstoppable laughter were the most healing half-hour of the day."},
+  {emoji:"\u26F7\uFE0F", h:"Side by Side on the Slopes", p:"From wiping out spectacularly to flying down the hill together \u2014 you made a team outing feel like an actual team."},
+  {emoji:"\uD83D\uDD0D", h:"The Escape Room", p:"'The clue is right here!' \u2014 you were always the first to stay calm and the best at keeping us moving."},
+];
+
+// 5) Section C — wishes for the future (p = wish, by = who)
+const FUTURE_WISHES = [
+  {p:"May the people you meet next know exactly how lucky they are to have you.", by:"Us"},
+  {p:"Go shine on a bigger stage \u2014 just don't forget to come back and tell us the stories.", by:"An old teammate"},
+  {p:"Wishing you keep that rare gift of making ordinary days sparkle.", by:"The team"},
+];
+
+// 6) Photos — drop files in the same folder and list filenames (empty = placeholder boxes)
+const PHOTOS = [
+  // "photo1.jpg", "photo2.jpg", "photo3.jpg", "photo4.jpg"
+];
+
+// 7) Shared guestbook backend (optional):
+//    Leave "" and notes save in each visitor's own browser.
+//    To let EVERYONE see the same wall, deploy the included Google Apps Script
+//    (apps-script-backend.gs) and paste its /exec URL here.
+const BACKEND_URL = "";
+
+/* ════════════ render logic — no need to edit below ════════════ */
+document.getElementById('year').textContent = new Date().getFullYear();
+if(HONOREE){document.title = "For " + HONOREE + " \u00B7 Spark of Brilliance";}
+document.getElementById('signName').textContent = "\u2014 " + SIGNED_BY;
+
+const sparksEl=document.getElementById('sparks');
+for(let i=0;i<28;i++){
+  const s=document.createElement('div');s.className='spark';
+  const sz=Math.random()*4+2;
+  s.style.width=sz+'px';s.style.height=sz+'px';s.style.left=Math.random()*100+'%';
+  s.style.animationDuration=(Math.random()*8+7)+'s';s.style.animationDelay=(-Math.random()*12)+'s';
+  sparksEl.appendChild(s);
+}
+
+const cloudColors=['#E8472B','#FF8E53','#E89B3C','#FF5E7E','#C0392B','#D35400'];
+const cloud=document.getElementById('cloud');
+QUALITIES.forEach(q=>{
+  const sp=document.createElement('span');sp.textContent=q.t;
+  sp.style.fontSize=(q.s*0.85)+'rem';
+  sp.style.color=cloudColors[Math.floor(Math.random()*cloudColors.length)];
+  sp.style.opacity=(0.55+q.s*0.18).toFixed(2);
+  cloud.appendChild(sp);
+});
+
+const lq=document.getElementById('leaderQuotes');
+LEADER_QUOTES.forEach(q=>{
+  const c=document.createElement('div');c.className='qcard reveal';
+  c.innerHTML='<span class="pill">'+q.pill+'</span><p>'+q.p+'</p><div class="by">'+q.by+'</div>';
+  lq.appendChild(c);
+});
+
+const jg=document.getElementById('joyGrid');
+JOY_MEMORIES.forEach(m=>{
+  const c=document.createElement('div');c.className='joy-card reveal';
+  c.innerHTML='<span class="emoji">'+m.emoji+'</span><h3>'+m.h+'</h3><p>'+m.p+'</p>';
+  jg.appendChild(c);
+});
+
+const wg=document.getElementById('wishGrid');
+FUTURE_WISHES.forEach(w=>{
+  const c=document.createElement('div');c.className='wish reveal';
+  c.innerHTML='<div class="star">\u2726</div><p>'+w.p+'</p><div class="by">'+w.by+'</div>';
+  wg.appendChild(c);
+});
+
+const pg=document.getElementById('photoGrid');
+const placeholderSVG='<svg viewBox="0 0 24 24"><path d="M21 19V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z"/></svg>';
+if(PHOTOS.length===0){
+  for(let i=0;i<4;i++){
+    const d=document.createElement('div');d.className='photo';
+    d.innerHTML='<div class="ph-empty">'+placeholderSVG+'Photo placeholder<br>add filenames to PHOTOS</div>';
+    pg.appendChild(d);
+  }
+}else{
+  PHOTOS.forEach(src=>{
+    const d=document.createElement('div');d.className='photo';
+    d.innerHTML='<img src="'+src+'" alt="A memory" loading="lazy">';
+    pg.appendChild(d);
+  });
+}
+
+const gbList=document.getElementById('gbList');
+const LSKEY='spark_guestbook_v1';
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function fmt(ts){const d=new Date(ts);return d.toLocaleDateString('en-US',{month:'long',day:'numeric'})+', '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+
+async function loadMessages(){
+  let msgs=null;
+  if(BACKEND_URL){
+    try{const r=await fetch(BACKEND_URL);msgs=await r.json();}
+    catch(e){console.warn('Backend read failed, using local',e);}
+  }
+  if(!msgs){msgs=JSON.parse(localStorage.getItem(LSKEY)||'[]');}
+  renderMessages(msgs);
+}
+function renderMessages(msgs){
+  gbList.innerHTML='';
+  if(!msgs||msgs.length===0){gbList.innerHTML='<div class="gb-empty">No notes yet \u2014 be the first to write one \u2661</div>';return;}
+  msgs.slice().reverse().forEach(m=>{
+    const d=document.createElement('div');d.className='gb-msg';
+    d.innerHTML='<div class="who">'+esc(m.name||'Anonymous')+'</div><div class="txt">'+esc(m.text)+'</div><div class="when">'+fmt(m.ts)+'</div>';
+    gbList.appendChild(d);
+  });
+}
+async function submitMessage(){
+  const name=document.getElementById('gbName').value.trim();
+  const text=document.getElementById('gbText').value.trim();
+  if(!text){alert('Write something first :)');return;}
+  const msg={name:name||'Anonymous',text:text,ts:Date.now()};
+  if(BACKEND_URL){
+    try{await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(msg)});}
+    catch(e){console.warn('Backend write failed, saved locally',e);}
+  }
+  const local=JSON.parse(localStorage.getItem(LSKEY)||'[]');
+  local.push(msg);localStorage.setItem(LSKEY,JSON.stringify(local));
+  document.getElementById('gbName').value='';document.getElementById('gbText').value='';
+  loadMessages();
+}
+document.getElementById('gbSubmit').addEventListener('click',submitMessage);
+loadMessages();
+
+const bgm=document.getElementById('bgm');
+const audioBtn=document.getElementById('audioBtn');
+const audioNote=document.getElementById('audioNote');
+audioBtn.addEventListener('click',()=>{
+  if(bgm.paused){
+    bgm.play().then(()=>audioBtn.classList.add('playing'))
+    .catch(()=>{audioNote.classList.add('show');setTimeout(()=>audioNote.classList.remove('show'),4200);});
+  }else{bgm.pause();audioBtn.classList.remove('playing');}
+});
+
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
