@@ -365,7 +365,7 @@ const FUTURE_WISHES = [
 
 // 6) Photos — drop files in the same folder and list filenames (empty = placeholder boxes)
 const PHOTOS = [
-  // "IMG_9915_Original.jpg", "IMG_6302_Original.jpg", "IMG_9917_Original.jpg"
+  "IMG_9915_Original.jpg", "IMG_6302_Original.jpg", "IMG_9917_Original.jpg"
 ];
 
 // 7) Shared guestbook backend (optional):
@@ -430,7 +430,13 @@ if(PHOTOS.length===0){
 }else{
   PHOTOS.forEach(src=>{
     const d=document.createElement('div');d.className='photo';
-    d.innerHTML='<img src="'+src+'" alt="A memory" loading="lazy">';
+    const img=new Image();
+    img.alt='A memory';img.loading='lazy';
+    img.onerror=function(){
+      d.innerHTML='<div class="ph-empty">'+placeholderSVG+'Couldn\u2019t load:<br><b>'+esc(src)+'</b><br>check the exact name &amp; use .jpg / .png (not .HEIC)</div>';
+    };
+    img.src=src;
+    d.appendChild(img);
     pg.appendChild(d);
   });
 }
