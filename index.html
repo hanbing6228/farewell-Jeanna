@@ -222,7 +222,7 @@ footer{background:#2B1810;color:rgba(255,240,225,.5);text-align:center;padding:3
 <header class="hero">
   <div class="sparks" id="sparks"></div>
   <div class="hero-inner">
-    <div class="eyebrow">A Retrospective . Jeanna</div>
+    <div class="eyebrow">A Retrospective · Jeanna</div>
     <h1>More than the work you delivered,<br>you leave behind <span class="accent">the spark that lit us up</span></h1>
     <p class="lede">
       On any career journey, some people are a force simply by being there.
@@ -272,7 +272,7 @@ footer{background:#2B1810;color:rgba(255,240,225,.5);text-align:center;padding:3
   <div class="wrap">
     <div class="sec-tag reveal"><span class="num">&#10022;</span>Moments</div>
     <h2 class="sec-title reveal">The frames <em>the light touched</em></h2>
-    <p class="commentary reveal">Photo</p>
+    <p class="commentary reveal">A few of the moments we were lucky enough to share with you.</p>
     <div class="photo-grid reveal" id="photoGrid"></div>
   </div>
 </section>
@@ -314,7 +314,7 @@ footer{background:#2B1810;color:rgba(255,240,225,.5);text-align:center;padding:3
    ════════════════════════════════════════════════════════════ */
 
 // 1) Names
-const HONOREE = "";                 // e.g. "Sarah"  (used in the browser tab title)
+const HONOREE = "Jeanna";            // shows in the browser tab title
 const SIGNED_BY = "Your colleagues"; // your name or the team name
 
 // 2) Word cloud — her best qualities (add as many as you like; s = size weight)
@@ -342,33 +342,30 @@ const LEADER_QUOTES = [
 // 4) Section B — joy memories (emoji, h = title, p = memory)
 const JOY_MEMORIES = [
   {emoji:"\uD83C\uDF5C", h:"From Fin", p:"Having team lunches with you and the team at your favorite restaurant, Anamia's!"},
-  {emoji:"\u26F7\uFE0F", h:"From Hollie", p:"Your dog always barking out the window when we were on meetings LOL!"},
-  {emoji:"\uD83D\uDD0D", h:"From Brandon", p:"'Really enjoyed the escape room with the whole team, and team lunches in Anamia's, which is one of my favorites now!"},
-  {emoji:"\u26F7\uFE0F", h:"From Brian", p:"December MMK off-site"},
-  {emoji:"\u26F7\uFE0F", h:"From Adam", p:"Braving a blizzard at the NH Offsite"},
-  {emoji:"\u26F7\uFE0F", h:"From Mohan", p:"One of my favorite moments was presenting the Relationship Summary high-level demo to leadership—it was a proud and memorable moment. Always saying Hi in my desk morning when passing through my desk"},
-  {emoji:"\u26F7\uFE0F", h:"From Nila", p:"Your competitive energy during the trivia games!"},
-  {emoji:"\u26F7\uFE0F", h:"Sandeep", p:"Really enjoyed our offsite meetings and team lunches together at Westlake office. Those moments made work a lot more fun and memorable!"},
-  {emoji:"\u26F7\uFE0F", h:"Dog", p:"Your dog always barking out the window when we were on meetings LOL!"},
+  {emoji:"\uD83D\uDC36", h:"From Hollie", p:"Your dog always barking out the window when we were on meetings LOL!"},
+  {emoji:"\uD83D\uDD0D", h:"From Brandon", p:"Really enjoyed the escape room with the whole team, and team lunches in Anamia's, which is one of my favorites now!"},
+  {emoji:"\uD83C\uDFE2", h:"From Brian", p:"December MMK off-site"},
+  {emoji:"\u2744\uFE0F", h:"From Adam", p:"Braving a blizzard at the NH Offsite"},
+  {emoji:"\uD83C\uDF89", h:"From Mohan", p:"One of my favorite moments was presenting the Relationship Summary high-level demo to leadership\u2014a proud and memorable moment. And always saying Hi at my desk in the morning when passing through!"},
+  {emoji:"\uD83C\uDFAF", h:"From Nila", p:"Your competitive energy during the trivia games!"},
+  {emoji:"\uD83C\uDF7D\uFE0F", h:"From Sandeep", p:"Really enjoyed our offsite meetings and team lunches together at the Westlake office. Those moments made work a lot more fun and memorable!"},
 ];
 
 // 5) Section C — wishes for the future (p = wish, by = who)
 const FUTURE_WISHES = [
   {p:"You survived being a SL on ADE, you can survive anything else! Best wishes!", by:"Hollie"},
-  {p:"长风破浪会有时, 直挂云帆济沧海. The time will come to ride the wind and break the waves; you will raise your cloud-white sails and cross the vast sea."", by:"Brandon"},
+  {p:"\u957F\u98CE\u7834\u6D6A\u4F1A\u6709\u65F6\uFF0C\u76F4\u6302\u4E91\u5E06\u6D4E\u6CA7\u6D77\u3002The time will come to ride the wind and break the waves; you will raise your cloud-white sails and cross the vast sea.", by:"Brandon"},
   {p:"New Stories for the Whataburger Breakfast Crew", by:"Brian"},
-  {p:"Best of luck for your future plans! In both career and life. You will be sorely missed", by:"Nila"},
+  {p:"Best of luck for your future plans \u2014 in both career and life. You will be sorely missed.", by:"Nila"},
   {p:"Wishing you stress free and happy days!", by:"Adam"},
-  {p:"Wishing you continued success, good health and happy days in your next chapter", by:"Vamshi"},
-  {p:"You always created such a welcoming and supportive environment for everyone. I’m genuinely sad to see you leave, but I know you’ll do amazing wherever you go next. Wishing you continued success and happiness! 
-", by:"Sandeep"},
-  {p:"Wishing you all the very best for your next journey - hope we get to work together again here", by:"Mohan"},
-  {p:"New Stories for the Whataburger Breakfast Crew", by:"Brian"},
+  {p:"Wishing you continued success, good health and happy days in your next chapter.", by:"Vamshi"},
+  {p:"You always created such a welcoming and supportive environment for everyone. I'm genuinely sad to see you leave, but I know you'll do amazing wherever you go next. Wishing you continued success and happiness!", by:"Sandeep"},
+  {p:"Wishing you all the very best for your next journey \u2014 hope we get to work together again here.", by:"Mohan"},
 ];
 
 // 6) Photos — drop files in the same folder and list filenames (empty = placeholder boxes)
 const PHOTOS = [
-  // "IMG_9915_Original.jpg", "IMG_6302_Original.jpg", "IMG_9917_Original.jpg", "photo4.jpg"
+  // "IMG_9915_Original.jpg", "IMG_6302_Original.jpg", "IMG_9917_Original.jpg"
 ];
 
 // 7) Shared guestbook backend (optional):
