@@ -40,6 +40,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;o
   box-shadow:0 6px 24px var(--shadow);display:flex;align-items:center;justify-content:center;
   transition:transform .3s,box-shadow .3s}
 .audio-btn:hover{transform:scale(1.08)}
+@keyframes btnpulse{0%,100%{box-shadow:0 6px 24px var(--shadow),0 0 0 0 rgba(232,71,43,.5)}50%{box-shadow:0 6px 24px var(--shadow),0 0 0 12px rgba(232,71,43,0)}}
+.audio-btn:not(.playing){animation:btnpulse 2.6s ease-in-out infinite}
 .audio-btn svg{width:22px;height:22px;fill:var(--ember)}
 .audio-btn .bars{display:none;gap:3px;align-items:flex-end;height:20px}
 .audio-btn.playing .bars{display:flex}
@@ -122,14 +124,14 @@ section.block{padding:clamp(70px,10vw,130px) 24px;position:relative}
 
 #joy{background:linear-gradient(180deg,var(--cream) 0%,var(--cream-2) 100%)}
 .joy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
-.joy-card{border-radius:24px;padding:34px 30px;color:#fff;position:relative;overflow:hidden;min-height:210px;
-  display:flex;flex-direction:column;justify-content:flex-end;box-shadow:0 16px 40px rgba(180,70,30,.18);transition:transform .4s}
+.joy-card{border-radius:24px;padding:30px;color:#fff;position:relative;overflow:hidden;min-height:210px;
+  display:flex;flex-direction:column;justify-content:flex-start;box-shadow:0 16px 40px rgba(180,70,30,.18);transition:transform .4s}
 .joy-card:hover{transform:translateY(-8px) rotate(-1deg)}
 .joy-card:nth-child(3n+1){background:linear-gradient(140deg,#FF7A4D,#FF5E7E)}
 .joy-card:nth-child(3n+2){background:linear-gradient(140deg,#FFA94D,#FF6B4A)}
 .joy-card:nth-child(3n+3){background:linear-gradient(140deg,#FF8E53,#E8472B)}
-.joy-card .emoji{font-size:42px;position:absolute;top:22px;left:26px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
-.joy-card h3{font-family:"Fraunces",Georgia,serif;font-size:24px;font-weight:600;margin-bottom:8px}
+.joy-card .emoji{font-size:40px;display:block;line-height:1;margin-bottom:14px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
+.joy-card h3{font-family:"Fraunces",Georgia,serif;font-size:24px;font-weight:600;margin-bottom:10px;line-height:1.2}
 .joy-card p{font-size:15px;line-height:1.65;font-weight:300;opacity:.96}
 
 #future{background:linear-gradient(180deg,#2B1810 0%,#3A2317 50%,#4A2A1A 100%);color:#fff;position:relative;overflow:hidden}
@@ -484,12 +486,27 @@ loadMessages();
 const bgm=document.getElementById('bgm');
 const audioBtn=document.getElementById('audioBtn');
 const audioNote=document.getElementById('audioNote');
-audioBtn.addEventListener('click',()=>{
+let noteTimer;
+function showNote(msg){audioNote.innerHTML=msg;audioNote.classList.add('show');clearTimeout(noteTimer);noteTimer=setTimeout(()=>audioNote.classList.remove('show'),5000);}
+let musicOn=false;
+
+// Browsers block autoplay with sound, so kick it off on the first interaction anywhere.
+function firstGesture(e){
+  if(e&&e.target&&e.target.closest&&e.target.closest('#audioBtn'))return; // let the button handle itself
+  if(musicOn||!bgm.paused)return;
+  bgm.play().then(()=>{musicOn=true;audioBtn.classList.add('playing');}).catch(()=>{});
+}
+['pointerdown','touchstart','keydown'].forEach(ev=>window.addEventListener(ev,firstGesture,{passive:true}));
+
+audioBtn.addEventListener('click',e=>{
+  e.stopPropagation();
   if(bgm.paused){
-    bgm.play().then(()=>audioBtn.classList.add('playing'))
-    .catch(()=>{audioNote.classList.add('show');setTimeout(()=>audioNote.classList.remove('show'),4200);});
-  }else{bgm.pause();audioBtn.classList.remove('playing');}
+    bgm.play().then(()=>{musicOn=true;audioBtn.classList.add('playing');})
+    .catch(()=>showNote('Couldn\u2019t find <b>music.mp3</b><br>upload it to the repo with that exact name'));
+  }else{bgm.pause();musicOn=false;audioBtn.classList.remove('playing');}
 });
+
+window.addEventListener('load',()=>showNote('\u266A Tap anywhere to play the music'));
 
 const io=new IntersectionObserver(es=>{
   es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
